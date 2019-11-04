@@ -11,7 +11,7 @@ let flock;
 let index;
 
 function setup() {
- createCanvas(720, 720);
+ createCanvas(windowWidth, windowHeight);
  //createP("Drag the mouse to generate new boids.");
  frameRate(60);
 
@@ -80,6 +80,10 @@ function draw() {
    index++;
  }
  flock.run();
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth,windowHeight);
 }
 
 function updateWindSpeed(spd) {
