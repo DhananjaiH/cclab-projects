@@ -71,7 +71,7 @@ function updateLocationData() {
 }
 
 function draw() {
- background(65,105,225,70);
+ background(65,105,225,80);
  //fill(#333333, 70);
  //console.log(frameCount);
  if (frameCount%180 ==0) {
