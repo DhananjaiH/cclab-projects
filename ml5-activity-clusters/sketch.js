@@ -5,8 +5,8 @@ console.log('ml5 version:', ml5.version);
 const dataset = [];
 
 const options = {
-    'k': 3,
-    'maxIter': 4,
+    'k': 2,
+    'maxIter': 8,
     'threshold': 0.5,
 };
 
@@ -117,26 +117,22 @@ function drawBeatifulD3Chart() {
 function drawCanvasJSChart() {
 
 	// sorting the clusters into separate arrays...
-	var c0 = [], c1 = [], c2 = [];
+	var clusters = [];
+	// creating sub-arrays depending on the number of clusters
+	for (var i=0; i<kmeans.config.k; i++) {
+		clusters.push( {
+			type: "scatter",
+			toolTipContent: "<span style=\"color:#4F81BC \"><b>{name}</b></span><br/><b> Load:</b> {x} TPS<br/><b> Response Time:</b></span> {y} ms",
+			name: "0",
+			showInLegend: true,
+			dataPoints: []
+		});
+	}
 
+
+	// loading data into the appropriate cluster set for the chart
 	for(var i=0; i<kmeans.dataset.length; i++) {
-		switch(kmeans.dataset[i].centroid) {
-			case 0:
-			c0.push( {x:kmeans.dataset[i][0], y:kmeans.dataset[i][1]} );
-			break;
-
-			case 1:
-			c1.push( {x:kmeans.dataset[i][0], y:kmeans.dataset[i][1]} );
-			break;
-
-			case 2:
-			c2.push( {x:kmeans.dataset[i][0], y:kmeans.dataset[i][1]} );
-			break;
-
-			default:
-			console.log("unknown cluster");
-			break;
-		}
+		clusters[ kmeans.dataset[i].centroid ].dataPoints.push( { x:kmeans.dataset[i][0], y:kmeans.dataset[i][1] });
 	}
 
 	var chart = new CanvasJS.Chart("chartContainer", {
@@ -150,27 +146,7 @@ function drawCanvasJSChart() {
 	axisY:{
 		title: "Approx sleep (in hours)"
 	},
-	data: [{
-		type: "scatter",
-		toolTipContent: "<span style=\"color:#4F81BC \"><b>{name}</b></span><br/><b> Load:</b> {x} TPS<br/><b> Response Time:</b></span> {y} ms",
-		name: "0",
-		showInLegend: true,
-		dataPoints: c0
-	},
-	{
-		type: "scatter",
-		name: "1",
-		showInLegend: true, 
-		toolTipContent: "<span style=\"color:#C0504E \"><b>{name}</b></span><br/><b> Load:</b> {x} TPS<br/><b> Response Time:</b></span> {y} ms",
-		dataPoints: c1
-	},
-	{
-		type: "scatter",
-		name: "2",
-		showInLegend: true, 
-		toolTipContent: "<span style=\"color:#C0504E \"><b>{name}</b></span><br/><b> Load:</b> {x} TPS<br/><b> Response Time:</b></span> {y} ms",
-		dataPoints: c2
-	}]
-});
-chart.render();
+	data: clusters
+	});
+	chart.render();
 }
