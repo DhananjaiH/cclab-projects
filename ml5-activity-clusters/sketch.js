@@ -7,19 +7,22 @@ const dataset = [];
 const options = {
     'k': 2,
     'maxIter': 8,
-    'threshold': 0.5,
+    'threshold': 1,
 };
 
 var kmeans;
 
 d3.csv("/data/data.csv").then(function(data) {
-  console.log(data[0]); // [{"Hello": "world"}, …]
+  //console.log(data[0]); // [{"Hello": "world"}, …]
   
   for(var i=0; i<data.length; i++) {
   	//dataset.push({ x: i%7, y: data[i].Steps}); // clustering day of the week vs step count
-  	dataset.push({ x: parseFloat( data[i].Steps ), y: approxSleepHours(data[i])}); //clustering step count vs sleep hours
+  	
+  	//dataset.push({ x: parseFloat( data[i].Steps ), y: approxSleepHours(data[i])}); //clustering step count vs sleep hours
+
+  	dataset.push({ x: parseFloat( data[i].Steps ), y: getActivityScore(data[i])}); // clustering step count vs activity score
   }
-  console.log(dataset.length);
+  //console.log(dataset.length);
   // Initialize the magicFeature
   kmeans = ml5.kmeans(dataset, options, clustersCalculated);
 });
@@ -30,10 +33,16 @@ function approxSleepHours(obj) {
 					+ parseFloat(obj.Minutes_of_moderate_activity) + parseFloat(obj.Minutes_of_intense_activity) ))/60;
 }
 
+// method for calculating an activity score
+function getActivityScore(obj) {
+	return (parseFloat(obj.Minutes_sitting)+parseFloat(obj.Minutes_of_slow_activity)
+			+parseFloat(obj.Minutes_of_moderate_activity)+parseFloat(obj.Minutes_of_intense_activity))/(24*60);
+}
+
 // When the model is loaded
 function clustersCalculated() {
   console.log('Points Clustered!');
-  console.log(kmeans.dataset);
+  //console.log(kmeans.dataset);
   //console.log(kmeans.centroids);
 
   //console.log(kmeans.readCsv("../Test_datasets/One_Year_Of_FitBitChargeHR_Data.csv"));
@@ -123,7 +132,7 @@ function drawCanvasJSChart() {
 		clusters.push( {
 			type: "scatter",
 			toolTipContent: "<span style=\"color:#4F81BC \"><b>{name}</b></span><br/><b> Load:</b> {x} TPS<br/><b> Response Time:</b></span> {y} ms",
-			name: "0",
+			name: i.toString(),
 			showInLegend: true,
 			dataPoints: []
 		});
@@ -138,13 +147,13 @@ function drawCanvasJSChart() {
 	var chart = new CanvasJS.Chart("chartContainer", {
 	animationEnabled: true,
 	title:{
-		text: "Clustering Steps vs Sleep data"
+		text: "Clustering Data"
 	},
 	axisX: {
-		title:"Step count (in thousands)"
+		title:"X (Steps - thousands)"
 	},
 	axisY:{
-		title: "Approx sleep (in hours)"
+		title: "Metrics"
 	},
 	data: clusters
 	});
